@@ -5,6 +5,8 @@ use strict;
 use Mojolicious::Lite -signatures;
 use Mojo::UserAgent;
 use Mojo::JSON qw(to_json from_json);
+use Date::Parse;
+use POSIX;
 
 $ENV{MOJO_REVERSE_PROXY} = 1;
 
@@ -95,14 +97,40 @@ get '/' => sub ($c) {
 
     my $ret;
 
+    my @now = localtime;
+
     for my $date (sort keys %$data) {
-	push @$ret, { date => $date,
-		      types => join(", ",
-				    map { $_->{name} }
-				    sort { $a->{id} <=> $b->{id} }
-				    @{$data->{$date}}
-				   ),
-		    };
+	my $time = str2time($date);
+	my @time = localtime $time;
+	my $fulldate = strftime("%Y-%m-%dT%H:%M:%S%z", @time);
+
+	my $d = { date => $fulldate,
+		  types => join(", ",
+				map { $_->{name} }
+				sort { $a->{id} <=> $b->{id} }
+				@{$data->{$date}}
+			       ),
+		};
+
+	my $human = "";
+	my $ddiff = $time[7]-$now[7];
+
+	if ($ddiff == 1) {
+	    $human .= "i morgen ";
+	}
+	elsif ($ddiff == 0) {
+	    $human .= "i dag ";
+	}
+
+	$human .= (qw( søndag mandag tirsdag onsdag torsdag fredag lørdag))[$time[6]];
+	$human .= " " . $time[3];
+	$human .= ". ";
+	$human .= (qw(januar februar mars april mai juni juli august september oktober november desember))[$time[4]];
+	$human .= " hentes " . $d->{types};
+	$human =~ s/(.*),/$1 og/;
+
+	$d->{human} = $human;
+	push @$ret, $d;
     }
 
     $c->render(json => { next_pickup_days => $ret });
