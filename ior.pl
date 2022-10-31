@@ -56,7 +56,6 @@ get '/' => sub ($c) {
 
     $res = $tx->result;
     if ($res->is_success) {
-	printf "Got it!\n";
 	my $json = $res->json;
 	for my $f (@$json) {
 	    my $id = $f->{FraksjonId};
@@ -129,7 +128,7 @@ get '/' => sub ($c) {
 	$human .= " hentes " . $d->{types};
 	$human =~ s/(.*),/$1 og/;
 
-	$d->{human} = $human;
+	$d->{human} = "\u\L$human";
 	push @$ret, $d;
     }
 
