@@ -88,11 +88,15 @@ get '/' => sub ($c) {
     }
 
     if ($frak) {
-	$tx = $ua->get('https://komteksky.norkart.no/komtek.renovasjonwebapi/api/fraksjoner/',
+	$tx = $ua->get('https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx',
 		       {
 			RenovasjonAppKey => $app_id,
 			Kommunenr => $kommunenr,
-		       });
+		       },
+		       form => {
+				server => 'https://komteksky.norkart.no/MinRenovasjon.Api/api/fraksjoner/',
+			       },
+		      );
 
 	$res = $tx->result;
 	if ($res->is_success) {
