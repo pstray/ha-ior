@@ -43,8 +43,6 @@ get '/' => sub ($c) {
 
     # https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx?server=https://komteksky.norkart.no/MinRenovasjon.Api/api/tommekalender/
 
-
-
     # $tx = $ua->get('https://komteksky.norkart.no/komtek.renovasjonwebapi/api/tommekalender/',
     #		   {
     #		    RenovasjonAppKey => $app_id,
@@ -69,8 +67,12 @@ get '/' => sub ($c) {
 
     $tx = $ua->get('https://norkartrenovasjon.azurewebsites.net/proxyserver.ashx',
 		   {
-		    server => $url,
+		    RenovasjonAppKey => $app_id,
+		    Kommunenr => $kommunenr,
 		   },
+		   form => {
+			    server => $url,
+			   }
 		  );
 
     $res = $tx->result;
